@@ -2,9 +2,9 @@ version: 0.2
 
 env:
   variables:
-    REGION: ap-south-1
-    REPO_NAME: webapp
-    IMAGE_TAG: latest
+    REGION: "ap-south-1"
+    REPO_NAME: "webapp"
+    IMAGE_TAG: "latest"
 
 phases:
   install:
@@ -13,7 +13,7 @@ phases:
 
   pre_build:
     commands:
-      - echo Logging into ECR...
+      - echo "Logging into ECR..."
       - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - echo "Account ID: $ACCOUNT_ID"
       - echo "Region: $REGION"
@@ -23,12 +23,12 @@ phases:
 
   build:
     commands:
-      - echo Build started...
+      - echo "Build started..."
       - mvn clean package -DskipTests
-      - docker build -t $REPO_NAME:$IMAGE_TAG .
-      - docker tag $REPO_NAME:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+      - "docker build -t $REPO_NAME:$IMAGE_TAG ."
+      - "docker tag $REPO_NAME:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG"
 
   post_build:
     commands:
-      - echo Pushing Docker image...
-      - docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+      - echo "Pushing Docker image..."
+      - "docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG"
