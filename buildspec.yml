@@ -1,0 +1,64 @@
+version: 0.2
+
+env:
+  variables:
+    MAVEN_OPTS: "-Xmx3g -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+  # Uncomment to pull secrets from SSM Parameter Store:
+  # parameter-store:
+  #   DB_PASSWORD: /myapp/prod/db_password
+
+phases:
+
+  install:
+    runtime-versions:
+      java: corretto21                   # Java 21 (Amazon Corretto)
+    commands:
+      - echo "=== Runtime versions ==="
+      - java -version
+      - mvn -version
+      - docker version
+
+  pre_build:
+    commands:
+      - echo "=== Logging in to Amazon ECR ==="
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+      # Build the full image URI and a short commit-based tag
+      - export REPO_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME
+      - export IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo "REPO_URI  => $REPO_URI"
+      - echo "IMAGE_TAG => $IMAGE_TAG"
+
+  build:
+    commands:
+      - echo "=== Maven build ==="
+      - mvn clean package -DskipTests -B --no-transfer-progress
+
+      - echo "=== Docker build (using your existing Dockerfile) ==="
+      - docker build -t $REPO_URI:$IMAGE_TAG -t $REPO_URI:latest .
+
+  post_build:
+    commands:
+      - echo "=== Pushing images to ECR ==="
+      - docker push $REPO_URI:$IMAGE_TAG
+      - docker push $REPO_URI:latest
+
+      - echo "=== Writing deployment manifests ==="
+      # Used by CodeDeploy standard ECS deploy
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$REPO_URI:$IMAGE_TAG" > imagedefinitions.json
+      # Used by CodeDeploy Blue/Green ECS deploy
+      - printf '{"ImageURI":"%s"}' "$REPO_URI:$IMAGE_TAG" > imageDetail.json
+
+      - echo "=== Build complete => $REPO_URI:$IMAGE_TAG ==="
+
+artifacts:
+  files:
+    - imagedefinitions.json    # For standard ECS deploy action
+    - imageDetail.json         # For Blue/Green ECS deploy action
+    - appspec.yaml             # CodeDeploy spec
+    - taskdef.json             # ECS task definition template
+  discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.m2/**/*'         # Cache Maven local repo — speeds up subsequent builds
