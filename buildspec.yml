@@ -42,7 +42,7 @@ phases:
       - echo "Succesfully pushed $ECR_REPO:$IMAGE_TAG to ECR"
 artifacts:
   files:
-    - '*.jar'
+    - 'sample-webapp-1.0.jar'
   base-directory: target
 
 cache:
