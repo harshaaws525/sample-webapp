@@ -5,7 +5,7 @@ env:
     REGION: ap-south-1
     AWS_ACCOUNT_ID: 618060700241
     ECR_REPO: sample-webapp
-    IMAGE_TAG: $CODEBUILD_BUILD__NUMBER
+    IMAGE_TAG: $CODEBUILD_BUILD_NUMBER
     PORT: 8080
 
 phases: 
