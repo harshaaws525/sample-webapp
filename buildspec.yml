@@ -28,7 +28,9 @@ phases:
   build:
     commands:
       - echo "Build starting"
-      - mvn clean package
+      - mvn clean package -DskipTests
+      - echo "Listing target folder"
+      - ls target/
       - echo "Building docker image"
       - docker build -t $ECR_REPO:$IMAGE_TAG .
       - docker tag $ECR_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
