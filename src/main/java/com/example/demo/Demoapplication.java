@@ -14,7 +14,7 @@ public class Demoapplication {
 
     @GetMapping("/")
     public String home() {
-        return "Hello from AWS CodePipeline 🚀";
+        return "Hello things getting fucked up";
     }
 
     @GetMapping("/health")
