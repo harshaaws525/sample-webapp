@@ -41,7 +41,8 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
       - echo "Succesfully pushed $ECR_REPO:$IMAGE_TAG to ECR"
       - echo "Registering new ECS Task Definition..."
-      - TASK_DEF_ARN=$(aws ecs register-task-definition \
+      - |
+        TASK_DEF_ARN=$(aws ecs register-task-definition \
         --family $ECS_TASKDEFINITION \
         --network-mode awsvpc \
         --requires-compatibilities FARGATE \
