@@ -5,6 +5,7 @@ env:
     REGION: ap-south-1
     AWS_ACCOUNT_ID: 618060700241
     ECR_REPO: sample-webapp
+    IMAGE_TAG: $CODEBUILD_BUILD_NUMBER
     PORT: 8080
 
 phases: 
@@ -18,7 +19,6 @@ phases:
   
   pre_build:
     commands:
-      - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER 
       - echo "Running Tests for Build "
       - mvn test
       - echo "Logging into ECR"
@@ -40,6 +40,9 @@ phases:
       - echo "Pushing image"
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
       - echo "Succesfully pushed $ECR_REPO:$IMAGE_TAG to ECR"
+      - echo "updating ecs service"
+      - aws ecs update-service --cluster sample-webapp-cluster --service sample-webapp-service --force-new-deployment --region $REGION
+      - echo "ECS update triggered"
 artifacts:
   files:
     - 'sample-webapp-1.0.jar'
