@@ -5,8 +5,9 @@ env:
     REGION: ap-south-1
     AWS_ACCOUNT_ID: 618060700241
     ECR_REPO: sample-webapp
-    IMAGE_TAG: $CODEBUILD_BUILD_NUMBER
     PORT: 8080
+  exported-variables:
+    - IMAGE_TAG
 
 phases: 
   install:
@@ -19,6 +20,7 @@ phases:
   
   pre_build:
     commands:
+      - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
       - echo "Running Tests for Build "
       - mvn test
       - echo "Logging into ECR"
