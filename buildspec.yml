@@ -41,28 +41,20 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
       - echo "Succesfully pushed $ECR_REPO:$IMAGE_TAG to ECR"
       - echo "Registering new ECS Task Definition..."
-      - |
-        TASK_DEF_ARN=$(aws ecs register-task-definition \
-        --family $ECS_TASKDEFINITION \
-        --network-mode awsvpc \
-        --requires-compatibilities FARGATE \
-        --cpu "512" \
-        --memory "1024" \
-        --execution-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/ecsTaskExecutionRole \
-        --container-definitions "[{\"name\":\"sample-webapp\",\"image\":\"$AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":8080,\"protocol\":\"tcp\"}]}]" \
-        --query 'taskDefinition.taskDefinitionArn' \
-        --output text \
-        --region $REGION)
-
-      - echo "Updating ECS Service with latest Task Definition..."
-      - aws ecs update-service \
-        --cluster $ECS_CLUSTER \
-        --service $ECS_SERVICE \
-        --task-definition $TASK_DEF_ARN \
-        --force-new-deployment \
+      - echo "Updating task definition"
+      - aws ecs register-task-definition
+        --family sample-webapp-task
+        --container-definitions "[{\"name\":\"sample-webapp\",\"image\":\"$AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":8080,\"protocol\":\"tcp\"}]}]"
+        --requires-compatibilities FARGATE
+        --network-mode awsvpc
+        --cpu 512
+        --memory 1024
+        --execution-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/ecsTaskExecutionRole
         --region $REGION
-
-      - echo "Deployment completed successfully 🚀"
+    # ✅ Update service with new task definition
+     - echo "Updating ECS service"
+     - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition sample-webapp-task --force-new-deployment --region $REGION
+     - echo "ECS update triggered!"
       
 artifacts:
   files:
