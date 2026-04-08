@@ -14,7 +14,7 @@ public class Demoapplication {
 
     @GetMapping("/")
     public String home() {
-        return "A comprehensive DevOps roadmap for 2026 focuses on building a foundation in Linux, networking, and security, followed by mastering Git, containerization (Docker), Infrastructure as Code (Terraform), and CI/CD pipelines. The path moves from foundational skills to cloud platforms (AWS/Azure) ";
+        return "AWS CodePipeline is a fully managed continuous delivery (CD) service that automates the steps required to release software. It allows developers to model, visualize, and automate every phase of the release process, from code changes to deployment. ";
     }
 
     @GetMapping("/health")
