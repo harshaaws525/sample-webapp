@@ -8,7 +8,6 @@ env:
     PORT: 8080
     ECS_CLUSTER: sample-webapp-cluster-latest
     ECS_SERVICE: sample-webapp-service
-    ECS_TASKDEFINITION: sample-webapp-task
   exported-variables:
     - IMAGE_TAG
 
@@ -16,10 +15,6 @@ phases:
   install:
     runtime-versions:
       java: corretto21
-    commands:
-      - echo "Installing git"
-      - yum install git -y
-      - echo "Successfully installed git"
   
   pre_build:
     commands:
@@ -45,11 +40,30 @@ phases:
       - echo "Pushing image"
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
       - echo "Succesfully pushed $ECR_REPO:$IMAGE_TAG to ECR"
-      - echo "Updating task definition with new image"
-      - aws ecs register-task-definition --family sample-webapp-task --container-definitions "[{\"name\":\"sample-webapp\",\"image\":\"$AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":8080,\"protocol\":\"tcp\"}]}]" --requires-compatibilities FARGATE --network-mode awsvpc --cpu 512 --memory 1024 --execution-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/ecsTaskExecutionRole --region $REGION
-      - echo "Updating ECS service"
-      - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $ECS_TASKDEFINITION --force-new-deployment --region $REGION
-      - echo "ECS update triggered!"
+      - echo "Registering new ECS Task Definition..."
+      - TASK_DEF_ARN=$(aws ecs register-task-definition \
+        --family $ECS_TASKDEFINITION \
+        --network-mode awsvpc \
+        --requires-compatibilities FARGATE \
+        --cpu "512" \
+        --memory "1024" \
+        --execution-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/ecsTaskExecutionRole \
+        --container-definitions "[{\"name\":\"sample-webapp\",\"image\":\"$AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":8080,\"protocol\":\"tcp\"}]}]" \
+        --query 'taskDefinition.taskDefinitionArn' \
+        --output text \
+        --region $REGION)
+
+    - echo "New Task Definition ARN: $TASK_DEF_ARN"
+
+    - echo "Updating ECS Service with latest Task Definition..."
+    - aws ecs update-service \
+        --cluster $ECS_CLUSTER \
+        --service $ECS_SERVICE \
+        --task-definition $TASK_DEF_ARN \
+        --force-new-deployment \
+        --region $REGION
+
+    - echo "Deployment completed successfully 🚀"
       
 artifacts:
   files:
