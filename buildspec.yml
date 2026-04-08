@@ -6,6 +6,8 @@ env:
     AWS_ACCOUNT_ID: 618060700241
     ECR_REPO: sample-webapp
     PORT: 8080
+    ECS_CLUSTER: sample-webapp-cluster-latest
+    ECS_SERVICE: sample-webapp-service
   exported-variables:
     - IMAGE_TAG
 
@@ -43,7 +45,7 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
       - echo "Succesfully pushed $ECR_REPO:$IMAGE_TAG to ECR"
       - echo "updating ecs service"
-      - aws ecs update-service --cluster sample-webapp-cluster-latest --service sample-webapp-service --force-new-deployment --region $REGION
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $REGION
       - echo "ECS update triggered"
 artifacts:
   files:
