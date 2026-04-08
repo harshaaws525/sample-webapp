@@ -51,10 +51,9 @@ phases:
         --memory 1024
         --execution-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/ecsTaskExecutionRole
         --region $REGION
-    # ✅ Update service with new task definition
-     - echo "Updating ECS service"
-     - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition sample-webapp-task --force-new-deployment --region $REGION
-     - echo "ECS update triggered!"
+      - echo "Updating ECS service"
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition sample-webapp-task --force-new-deployment --region $REGION
+      - echo "ECS update triggered!"
       
 artifacts:
   files:
