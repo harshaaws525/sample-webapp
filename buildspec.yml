@@ -53,7 +53,6 @@ phases:
         --query 'taskDefinition.taskDefinitionArn' \
         --output text \
         --region $REGION)
-      - echo "New Task Definition ARN: $TASK_DEF_ARN"
 
       - echo "Updating ECS Service with latest Task Definition..."
       - aws ecs update-service \
