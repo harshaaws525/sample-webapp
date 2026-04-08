@@ -53,18 +53,17 @@ phases:
         --query 'taskDefinition.taskDefinitionArn' \
         --output text \
         --region $REGION)
+      - echo "New Task Definition ARN: $TASK_DEF_ARN"
 
-    - echo "New Task Definition ARN: $TASK_DEF_ARN"
-
-    - echo "Updating ECS Service with latest Task Definition..."
-    - aws ecs update-service \
+      - echo "Updating ECS Service with latest Task Definition..."
+      - aws ecs update-service \
         --cluster $ECS_CLUSTER \
         --service $ECS_SERVICE \
         --task-definition $TASK_DEF_ARN \
         --force-new-deployment \
         --region $REGION
 
-    - echo "Deployment completed successfully 🚀"
+      - echo "Deployment completed successfully 🚀"
       
 artifacts:
   files:
