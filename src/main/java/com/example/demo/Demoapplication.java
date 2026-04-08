@@ -14,7 +14,7 @@ public class Demoapplication {
 
     @GetMapping("/")
     public String home() {
-        return "Hello things getting fucked up";
+        return "A comprehensive DevOps roadmap for 2026 focuses on building a foundation in Linux, networking, and security, followed by mastering Git, containerization (Docker), Infrastructure as Code (Terraform), and CI/CD pipelines. The path moves from foundational skills to cloud platforms (AWS/Azure) ";
     }
 
     @GetMapping("/health")
