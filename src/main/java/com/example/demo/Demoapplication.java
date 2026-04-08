@@ -14,7 +14,7 @@ public class Demoapplication {
 
     @GetMapping("/")
     public String home() {
-        return "AWS CodePipeline is a fully managed continuous delivery (CD) service that automates the steps required to release software. It allows developers to model, visualize, and automate every phase of the release process, from code changes to deployment. ";
+        return "AWS PIPELINE is Working";
     }
 
     @GetMapping("/health")
